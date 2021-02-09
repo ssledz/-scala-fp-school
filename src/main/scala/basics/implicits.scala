@@ -13,4 +13,71 @@ package basics
   *    - companion object
   *    - package objects
   */
-object implicits extends App {}
+object implicits extends App {
+
+  case class Foo(x: String) extends AnyVal
+
+  def foo(a: String)(implicit b: Foo): String = a + b.x
+
+  foo("Hello")(Foo("s"))
+
+  implicit val fooVal = Foo(" implicit")
+
+  println(foo("Hello"))
+
+  // implicit conversion ex OptionOpts
+
+  class IntWrapper(val x: Int) extends AnyVal
+
+  def add(a: Int, b: String)(implicit f: String => IntWrapper): Int =
+    a + b.x
+
+  implicit def toInt2(a: String): IntWrapper = new IntWrapper(a.toInt)
+
+  println(add(1, "2"))
+
+  class Bar(x: Int, y: Int) {
+    val z = x + y
+    def foo: Int = x
+  }
+
+  val bar = new Bar(1, 2)
+  bar.z
+
+  def addInt(x: Int, y: Int): Int = x + y
+  def addString(x: String, y: String): String = x + y
+
+  trait SemiGroup[A] {
+    def combine(a: A, b: A): A
+  }
+
+  object SemiGroup {
+    def apply[A](implicit S: SemiGroup[A]): SemiGroup[A] = S
+  }
+
+  implicit val stringSemigroup: SemiGroup[String] = new SemiGroup[String] {
+    def combine(a: String, b: String): String = a + b
+  }
+
+  implicit val intSemigroup: SemiGroup[Int] = new SemiGroup[Int] {
+    def combine(a: Int, b: Int): Int = a + b
+  }
+
+  def add[A](x: A, y: A)(implicit F: SemiGroup[A]): A = F.combine(x, y)
+
+  println(add("hello", "type classes"))
+
+  println(add(1, 2))
+
+  def add2[A: SemiGroup](x: A, y: A): A = implicitly[SemiGroup[A]].combine(x, y)
+
+  println(add2(1, 2))
+
+  class FooBar2[A : SemiGroup]
+  class FooBar[A](implicit F : SemiGroup[A])
+
+  def add2[A: SemiGroup](x: A, y: A): A = SemiGroup[A].combine(x, y)
+
+
+  println(add2(1, 2))
+}
