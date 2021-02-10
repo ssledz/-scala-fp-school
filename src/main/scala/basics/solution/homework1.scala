@@ -1,4 +1,6 @@
-package basics
+package basics.solution
+
+import scala.annotation.tailrec
 
 /**
   * Read:
@@ -11,8 +13,25 @@ package basics
   */
 object homework1 extends App {
 
-  def revers(s: String): String = ???
+  //foldLeft
+  def revers(s: String): String = {
+    @tailrec
+    def go(xs: List[Char], acc: String): String = xs match {
+      case h :: t => go(t, h.toString ++ acc)
+      case Nil    => acc
+    }
+    go(s.toList, "")
+  }
 
-  assert(revers("helloWorld") == "dlroWolleh")
+  // "" => ""
+  // "s"  => "s"
+  // "helloWorld" => revers2("elloWorld") +  "h"
+  def revers2(s: String): String =
+    if (s.length <= 1) s
+    else revers2(s.tail) + s.head
+
+  println(revers("helloWorld"))
+  println(revers2("helloWorld"))
+  println(revers("helloWorld") == "dlroWolleh")
 
 }
