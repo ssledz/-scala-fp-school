@@ -1,11 +1,17 @@
 package basics
 
+/**
+  * Read:
+  *   - https://docs.scala-lang.org/overviews/core/value-classes.html
+  *
+  * Watch:
+  *   - https://www.youtube.com/watch?v=V10hzjgoklA&list=PLw1ByaFQI-9ICX6a6T4f2OW-w9SV17MUg&index=1&t=1609s&ab_channel=LambdaWorld
+  *
+  * Implement
+  *   - functions:  flatMap, filter, foldLeft, foldMap, List.apply
+  *   - monoid instance
+  */
 object homework2 {
-
-  //read:
-  // https://docs.scala-lang.org/overviews/core/value-classes.html
-
-  // implement
 
   sealed trait List[+A] {
 
