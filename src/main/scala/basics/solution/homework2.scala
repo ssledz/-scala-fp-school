@@ -1,5 +1,7 @@
 package basics.solution
 
+import scala.annotation.tailrec
+
 object homework2 extends App {
 
   //read:
@@ -33,6 +35,7 @@ object homework2 extends App {
     def filter(f: A => Boolean): List[A] = flatMap(a => if (f(a)) List(a) else List.empty)
 
     def foldLeft[B](acc: B)(f: (B, A) => B): B = {
+      @tailrec
       def go(xs: List[A], acc: B): B = xs match {
         case Cons(head, tail) => go(tail, f(acc, head))
         case Nil              => acc
@@ -88,5 +91,18 @@ object homework2 extends App {
   }
 
   assert(List("1", "2", "3").foldMap(_.toInt)(intSumMonoid) == 6)
+
+  println(1 :: 2 :: 3:: 4 :: 5:: List.empty)
+
+  println(1 :: 2 :: 3 :: List.empty ::: 1 :: 2 :: List.empty)
+
+  val as = 1 :: 2 :: 3 :: List.empty
+  val bs = 6 :: 7 :: List.empty
+
+  val cs = 0 :: as ::: bs
+  val csp = 0 :: as ++ bs
+
+  println(cs)
+  println(csp)
 
 }

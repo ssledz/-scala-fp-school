@@ -80,4 +80,19 @@ object implicits extends App {
 
 
   println(add3(1, 2))
+
+  sealed trait BarUniversalTrait extends Any
+  case class Foo2(s : String) extends AnyVal with BarUniversalTrait
+  case class FooBar3(i : Int) extends AnyVal with BarUniversalTrait
+  object Foo2 {
+    implicit val semiGroupInstance: SemiGroup[Foo2] = new SemiGroup[Foo2] {
+      def combine(a: Foo2, b: Foo2): Foo2 = Foo2(a.s ++ b.s)
+    }
+  }
+
+  val foo2OrBar : BarUniversalTrait = FooBar3(1)
+
+
+  SemiGroup[Foo2].combine(new Foo2(""), new Foo2("ss"))
+
 }
