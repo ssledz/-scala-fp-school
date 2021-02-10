@@ -76,8 +76,8 @@ object implicits extends App {
   class FooBar2[A : SemiGroup]
   class FooBar[A](implicit F : SemiGroup[A])
 
-  def add2[A: SemiGroup](x: A, y: A): A = SemiGroup[A].combine(x, y)
+  def add3[A: SemiGroup](x: A, y: A): A = SemiGroup[A].combine(x, y)
 
 
-  println(add2(1, 2))
+  println(add3(1, 2))
 }
