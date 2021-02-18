@@ -41,7 +41,7 @@ object homework3 extends App {
       def <=(b: A)(implicit ev: Ord[A]): Boolean = ev.le(a, b)
       def <(b: A)(implicit ev: Ord[A]): Boolean = ev.lt(a, b)
       def >(b: A)(implicit ev: Ord[A]): Boolean = ev.gt(a, b)
-      def ===(b: A)(implicit ev: Ord[A]): Boolean = ev.le(a, b) && ev.ge(a, b)
+//      def ===(b: A)(implicit ev: Ord[A]): Boolean = ev.le(a, b) && ev.ge(a, b) // this is not a part of Ord
     }
   }
 
