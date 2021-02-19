@@ -1,10 +1,11 @@
 package fpdesign
 
 /**
- * - laws
- *   - identity law (preserving the structure) => x.map(a => a) == x
- *   - associative law  x.map(f andThen g) == x.map(f).map(g)
- */
-object functors extends App {
-
-}
+  *  - functor type class
+  *  - laws
+  *    - identity law     x.map(a => a) == x
+  *    - composition law  x.map(f andThen g) == x.map(f).map(g)
+  *  - covariant functor
+  *  - contravariant functor
+  */
+object functors extends App {}
