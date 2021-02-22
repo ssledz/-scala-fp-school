@@ -21,7 +21,7 @@ import basics.homework2.Monoid
   *    - what are your observations (if any) ?
   *    - implement parse
   *      - is it safe ?
-  *    - implement foldMap, intMonoidInstance, vectorFunctorInstance to assert a given expression
+  *    - implement foldMap, Foldable, intMonoidInstance, vectorFolableInstance, vectorFunctorInstance to assert a given expression
   *    - implement distribute and codistribute
   */
 object homework4 extends App {
@@ -46,11 +46,16 @@ object homework4 extends App {
 
   assert(parse(Set("1", "2", "3")) == Set(1, 2, 3))
 
-  def foldMap[F[_]: Functor, A, B: Monoid](fa: F[A])(f: A => B): B = ???
+  trait Foldable[F[_]] {
+    ???
+  }
+
+  def foldMap[F[_]: Functor: Foldable, A, B: Monoid](fa: F[A])(f: A => B): B = ???
 
   case class Money(value: Int)
   implicit val intMonoidInstance: Monoid[Int] = ???
   implicit val vectorFunctorInstance: Functor[Vector] = ???
+  implicit val vectorFolableInstance: Foldable[Vector] = ???
 
   assert(foldMap(Vector(Money(1), Money(2), Money(3)))(_.value) == 6)
 
