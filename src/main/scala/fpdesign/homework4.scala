@@ -1,6 +1,8 @@
 package fpdesign
 
 import basics.homework2.Monoid
+import fpdesign.functors.Functor
+import fpdesign.functors.Functor.instances._
 
 /**
   *  To Read:
@@ -25,8 +27,6 @@ import basics.homework2.Monoid
   *    - implement distribute and codistribute
   */
 object homework4 extends App {
-
-  import functors.Functor
 
   trait Read[A] {
     def read(s: String): A
@@ -62,5 +62,9 @@ object homework4 extends App {
   def distribute[F[_]: Functor, A, B](fab: F[(A, B)]): (F[A], F[B]) = ???
 
   def codistribute[F[_]: Functor, A, B](e: Either[F[A], F[B]]): F[Either[A, B]] = ???
+
+  assert(distribute(List("one" -> 1, "two" -> 2, "three" -> 3)) == (List("one", "two", "three"), List(1, 2, 3)))
+  assert(codistribute(Right(List(1, 2, 3))) == List(Right(1), Right(2), Right(3)))
+  assert(codistribute(Left(List("one", "two"))) == List(Left("one"), Left("two")))
 
 }
