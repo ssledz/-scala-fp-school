@@ -36,7 +36,7 @@ object homework2 {
 
   case object Nil extends List[Nothing]
 
-  sealed trait Monoid[A] {
+  trait Monoid[A] {
     def combine(a: A, b: A): A
     def empty: A
   }

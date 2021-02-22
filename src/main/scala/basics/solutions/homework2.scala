@@ -1,4 +1,4 @@
-package basics.solution
+package basics.solutions
 
 import scala.annotation.tailrec
 
