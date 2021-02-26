@@ -59,6 +59,19 @@ object functors extends App {
   println(inc(Right(10): ThrowEither[Int]))
   println(inc(Left(new RuntimeException("ups")): ThrowEither[Int]))
 
+  trait ContravariantFunctor[F[_]] {
+    def contramap[A, B](fa: F[A])(f: B => A): F[B]
+  }
+
+  object ContravariantFunctor {
+    def apply[F[_]: ContravariantFunctor]: ContravariantFunctor[F] = implicitly[ContravariantFunctor[F]]
+
+    implicit class ContravariantFunctorOps[F[_], A](val fa: F[A]) extends AnyVal {
+      def contramap[B](f: B => A)(implicit ev: ContravariantFunctor[F]): F[B] = ev.contramap(fa)(f)
+    }
+
+  }
+
   trait Show[A] {
     def show(a: A): String
   }
@@ -70,16 +83,52 @@ object functors extends App {
       def show(implicit ev: Show[A]): String = ev.show(a)
     }
 
-    def show[A](f : A => String) : Show[A] = (a: A) => f(a)
+    def show[A](f: A => String): Show[A] = (a: A) => f(a)
 
     object instances {
 
-      implicit val functorInstance: Functor[Show] = new Functor[Show] {
-        def map[A, B](fa: Show[A])(f: A => B): Show[B] = ???
+      implicit val contraFunctor: ContravariantFunctor[Show] = new ContravariantFunctor[Show] {
+        def contramap[A, B](fa: Show[A])(f: B => A): Show[B] = new Show[B] {
+          def show(b: B): String = {
+            val a : A = f(b)
+            fa.show(a)
+          }
+        }
+      }
+
+      implicit val functorInstance : Functor[Show] = new Functor[Show] {
+        def map[A, B](fa: Show[A])(f: A => B): Show[B] = new Show[B] {
+          def show(a: B): String =  {
+            val a : A = ???
+            fa.show(a)
+          }
+        }
       }
 
     }
 
   }
+
+  import ContravariantFunctor._
+  import Show.instances._
+  import Show._
+
+  implicit val intShow: Show[Int] = (a: Int) => "int: " + a.toString
+
+  case class Money(value : Int)
+
+  object Money {
+//    implicit val showIntance2: Show[Money] =  new  Show[Money] {
+//      override def show(a: Money): String = a.value.toString
+//    }
+
+//    implicit val showIntance: Show[Money] =  Show[Int].contramap[Money](_.value)
+    implicit val showIntance: Show[Money] =  ContravariantFunctor[Show].contramap(Show[Int])((m : Money) => m.value)
+  }
+
+  import Money._
+
+  println(123.show)
+  println(Money(123).show)
 
 }
