@@ -5,4 +5,6 @@ package fpdesign
   *  - laws
   *  - monoid product
   */
-object monoids extends App {}
+object monoids extends App {
+
+}

@@ -8,11 +8,16 @@ import scala.concurrent.{Await, Future}
 /**
   *  - applicative type class
   *  - validate vs either
+  *   - applicative combinators
+  *     - def sequence[A](xs: List[F[A]]): F[List[A]]
+  *     - def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]]
+  *     - def replicateM[A](n: Int, fa: F[A]): F[List[A]]
   *  - laws
-  *    - identity law     x.map(a => a) == x
-  *    - composition law  x.map(f andThen g) == x.map(f).map(g)
-  *    - homomorphism
-  *    - interchange
+  *    - functor laws (identity, composition)
+  *    - left identity   map2(unit(()), fa)((_,a) => a) == fa
+  *    - right identity  map2(fa, unit(()))((a,_) => a) == fa
+  *    - associativity   product(product(fa,fb),fc) == map(product(fa, product(fb,fc)))(assoc)
+
   */
 object applicative {
 
