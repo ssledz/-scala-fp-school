@@ -17,6 +17,7 @@ import scala.concurrent.{Await, Future}
   *     - def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]]
   *     - def replicateM[A](n: Int, fa: F[A]): F[List[A]]
   *     - def product[A, B](fa: F[A], fb: F[B]) : F[(A, B)]
+ *      - def filterM[A](ms: List[A])(f: A => F[Boolean]): F[List[A]]
   *  - laws
   *    - functor laws (identity, composition)
   *    - left identity   map2(unit(()), fa)((_,a) => a) == fa

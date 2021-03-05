@@ -11,8 +11,6 @@ package fpdesign
  *    - Future
  *  - monads vs applicative
  *  - 'effects' in fp
- *  - monadic combinators
- *    - def filterM[A](ms: List[A])(f: A => F[Boolean]): F[List[A]]
  *  - laws
  *    - associative      x.flatMap(f).flatMap(g) == x.flatMap(a => f(a).flatMap(g))
  *    - left identity    flatMap(x)(pure) == x
