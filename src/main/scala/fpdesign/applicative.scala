@@ -7,17 +7,21 @@ import scala.concurrent.{Await, Future}
 
 /**
   *  - applicative type class
-  *  - validate vs either
+  *  - example of applicative instance
+  *    - option
+  *  - validated data type
+  *  - validated applicative instance
+  *  - validated vs either
   *   - applicative combinators
   *     - def sequence[A](xs: List[F[A]]): F[List[A]]
   *     - def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]]
   *     - def replicateM[A](n: Int, fa: F[A]): F[List[A]]
+  *     - def product[A, B](fa: F[A], fb: F[B]) : F[(A, B)]
   *  - laws
   *    - functor laws (identity, composition)
   *    - left identity   map2(unit(()), fa)((_,a) => a) == fa
   *    - right identity  map2(fa, unit(()))((a,_) => a) == fa
   *    - associativity   product(product(fa,fb),fc) == map(product(fa, product(fb,fc)))(assoc)
-
   */
 object applicative {
 
