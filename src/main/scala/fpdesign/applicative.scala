@@ -61,6 +61,15 @@ object applicative extends App {
       ap(fde)(fd)
     }
 
+    def sequence[A](xs: List[F[A]]): F[List[A]] =
+      map(xs.foldLeft(pure(List.empty[A])) { (acc: F[List[A]], fa: F[A]) =>
+        map2(acc, fa)((as, a) => a :: as)
+      })(_.reverse)
+
+    def traverse[A, B](xs: List[A])(f: A => F[B]): F[List[B]] = sequence(xs.map(f))
+
+    def product[A, B](fa: F[A], fb: F[B]) : F[(A, B)] = map2(fa, fb)(_ -> _)
+
   }
 
   object Applicative {
@@ -105,6 +114,26 @@ object applicative extends App {
         } yield f(a)
 
       def pure[A](a: A): Option[A] = Option(a)
+    }
+
+    implicit val applicativeListInstance: Applicative[List] = new Applicative[List] {
+      def ap[A, B](fab: List[A => B])(fa: List[A]): List[B] =
+        for {
+          f <- fab
+          a <- fa
+        } yield f(a)
+
+      def pure[A](a: A): List[A] = List(a)
+    }
+
+    implicit val applicativeEitherInstance: Applicative[Either[String, *]] = new Applicative[Either[String, *]] {
+      def ap[A, B](fab: Either[String, A => B])(fa: Either[String, A]): Either[String, B] =
+        for {
+          f <- fab
+          a <- fa
+        } yield f(a)
+
+      def pure[A](a: A): Either[String, A] = Right(a)
     }
 
     implicit class OptionOps[A](val a: A) extends AnyVal {
@@ -152,9 +181,24 @@ object applicative extends App {
     case _                  => None
   }
 
+  trait SemiGroup[A] {
+    def combine(a: A, b: A): A
+  }
+
+  object Semigroup {
+    def apply[A: SemiGroup]: SemiGroup[A] = implicitly[SemiGroup[A]]
+  }
+
   // adt
   // * -> * -> *
-  sealed trait Validated[+E, +A]
+  sealed trait Validated[+E, +A] {
+    def ap[EE >: E, B](ff: Validated[EE, A => B])(implicit EE: SemiGroup[EE]): Validated[EE, B] = (this, ff) match {
+      case (Valid(a), Valid(f))         => Valid(f(a))
+      case (InValid(a), InValid(b))     => InValid(EE.combine(a, b))
+      case (Valid(_), err @ InValid(_)) => err
+      case (err @ InValid(_), _)        => err
+    }
+  }
 
   object Validated {
 
@@ -162,6 +206,10 @@ object applicative extends App {
 
     case class InValid[E](e: E) extends Validated[E, Nothing]
 
+  }
+
+  implicit def listSemigroupInstance[A]: SemiGroup[List[A]] = new SemiGroup[List[A]] {
+    override def combine(a: List[A], b: List[A]): List[A] = a ++ b
   }
 
   object AdultDomain {
@@ -175,7 +223,7 @@ object applicative extends App {
 
       def pure[A](a: A): ValidationResult[A] = Valid(a)
 
-      def ap[A, B](fab: ValidationResult[A => B])(fa: ValidationResult[A]): ValidationResult[B] = ???
+      def ap[A, B](fab: ValidationResult[A => B])(fa: ValidationResult[A]): ValidationResult[B] = fa.ap(fab)
     }
 
     def validateAge(age: String): ValidationResult[Int] =
@@ -213,6 +261,22 @@ object applicative extends App {
       if (xs.nonEmpty) {
         println("You are not adult because age is too low")
       }
+      val ys: List[AdultDomain.NameTooLong.type] = e.collect { case err: NameTooLong.type => err }
+      if (ys.nonEmpty) {
+        println("Please pass correct name. Must be shorter than 5")
+      }
   }
+
+  val ys: Future[List[Int]] = Applicative[Future].sequence(List(Future(1), Future(2), Future(3)))
+
+  println(Await.result(ys, Duration.Inf))
+
+  val ws = List("1", "2", "3a")
+
+  def parse(s: String): Either[String, Int] = Try(s.toInt).toEither.left.map(_.getMessage)
+
+  val us: Either[String, List[Int]] = Applicative[Either[String, *]].traverse(ws)(parse)
+
+  println(us)
 
 }
