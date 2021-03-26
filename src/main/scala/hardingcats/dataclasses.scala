@@ -1,10 +1,11 @@
 package hardingcats
 
-import cats._
+import cats.arrow.FunctionK
+import cats.{~>, _}
 import cats.data._
 import cats.implicits._
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime, ZoneId, ZonedDateTime}
 import concurrent.duration.Duration
 import concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{Await, Future}
@@ -137,8 +138,78 @@ object dataclasses extends App {
       _ <- State.set(seq + 1)
     } yield seq
 
+  val nexIntS2: IntState[Int] = State { seq =>
+    (seq + 1, seq)
+  }
+
   val ids: IntState[List[Int]] = List.fill(5)(nexIntS).sequence
+  val ids2: IntState[List[Int]] = List.fill(5)(nexIntS2).sequence
 
   println("ids: " + ids.runA(1).value)
+  println("ids2: " + ids2.runA(1).value)
+
+  // Reader monad
+  // f : E => B
+  type Time = Long
+
+  def zoned(t: Time): ZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.of("CET"))
+
+  def day(t: Time): Int = zoned(t).getDayOfYear
+  def hour(t: Time): Int = zoned(t).getHour
+  def minute(t: Time): Int = zoned(t).getMinute
+
+  def format(t: Time): String = {
+    val d = day(t)
+    val h = hour(t)
+    val m = minute(t)
+    s"day $d, $h:$m"
+  }
+
+  println(format(System.currentTimeMillis()))
+
+  val zonedR: Reader[Time, ZonedDateTime] = Reader(zoned)
+  val dayR: Reader[Time, Int] = zonedR.map(_.getDayOfYear)
+  val hourR: Reader[Time, Int] = zonedR.map(_.getHour)
+  val minuteR: Reader[Time, Int] = zonedR.map(_.getMinute)
+
+  val formatR: Reader[Time, String] =
+    for {
+      d <- dayR
+      h <- hourR
+      m <- minuteR
+    } yield s"day $d, $h:$m"
+
+  println(formatR.run(System.currentTimeMillis()))
+
+  // Kleisli arrow
+  // f : A => F[B]
+  // String => Future[Int]
+  val parse: Kleisli[Future, String, Int] = Kleisli[Future, String, Int] { str =>
+    Future.successful(str.toInt)
+  }
+
+  case class Response(value: Int)
+
+  val wrap: Kleisli[Future, Int, Response] = Kleisli[Future, Int, Response] { i =>
+    Future.successful(Response(i))
+  }
+
+  import cats.effect._
+
+  println(parse.map(i => i + 1).run("1").get)
+
+  println(parse.andThen(wrap).run("21").get)
+
+  implicit val cs : ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.global)
+
+  val toIO: Future ~> IO = new FunctionK[Future,IO] {
+    def apply[A](fa: Future[A]): IO[A] =  IO.fromFuture(IO.pure(fa))
+  }
+
+  val ioFromF: Kleisli[IO, String, Response] = parse.andThen(wrap).mapK(toIO)
+
+  println(ioFromF.run("13"))
+
+  println(ioFromF.run("13").unsafeRunSync())
 
 }
