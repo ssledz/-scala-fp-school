@@ -1,13 +1,13 @@
-import cats.effect.IO
 import cats._
-import cats.implicits._
+import cats.effect.{Clock, ContextShift, IO, Timer}
 
-import java.io.{BufferedReader, InputStreamReader}
-// IO monad
+import java.util.concurrent.{Executors, TimeUnit}
 
+//-----IO monad------------
+// both sync + async computation
 val readInput: IO[String] = IO("a18")
 //val readInput: IO[String] = IO(new BufferedReader(new InputStreamReader(System.in)).readLine())
-def printIO(s : String) : IO[Unit] = IO(println(s))
+def printIO(s: String): IO[Unit] = IO(println(s))
 
 val program =
   for {
@@ -20,3 +20,10 @@ val program =
 program.handleErrorWith {
   case err: Throwable => printIO("Ups error: " + err)
 }.unsafeRunSync()
+
+//------Clock-------------
+
+val clock = Clock.create[IO]
+println(clock.realTime(TimeUnit.MICROSECONDS).unsafeRunSync())
+println(clock.realTime(TimeUnit.MICROSECONDS).unsafeRunSync())
+

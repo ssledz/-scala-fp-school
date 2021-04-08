@@ -1,8 +1,16 @@
 package hardingcats
 
 /**
- *  - IO monad
- *  - IOApp
+ *  - data types
+ *    - IO
+ *    - SyncIO
+ *    - Fiber
+ *    - Resource
+ *    - Clock
+ *    - ContextShift
+ *    - Timer
+ *    - IOApp
+ *    - Blocker
  *  - tagless final encoding
  *  - type classes
  *    - Sync
@@ -10,14 +18,15 @@ package hardingcats
  *    - Concurrent
  *    - Effect
  *    - ConcurrentEffect
+ *    - Bracket
+ *    - LiftIO
  *  - concurrency
- *    - ContextShift
- *    - fibers
- *    - Blocker
- *
+ *    - Ref
+ *    - MVar
+ *    - Semaphore
+ *    - Deferred
  */
 object catseffectintro extends App {
-
 
 
 }
