@@ -35,7 +35,7 @@ object monads extends App {
 
   // * -> *
   trait Monad[F[_]] extends Applicative[F] {
-    def pure[A](a: A): F[A]
+    def pure[A](a: A): F[A]  // point, unit
     def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
     def ap[A, B](fab: F[A => B])(fa: F[A]): F[B] = flatMap(fab) { f =>
       flatMap(fa) { a =>
@@ -84,7 +84,7 @@ object monads extends App {
   trait Monad2[F[_]] {
     def pure[A]: F[A]
     def map[A, B](fa: F[A])(f: A => B): F[B]
-    def join[A](ffa: F[F[A]]): F[A] // alias flatten
+    def join[A](ffa: F[F[A]]): F[A] // alias flatten,
 
     def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B] = join(map(fa)(f))
 
